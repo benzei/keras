@@ -164,7 +164,7 @@ def test_vgg19_pooling_specified_input_shape():
 
 @keras_test
 @pytest.mark.skipif((K.backend() != 'tensorflow'),
-                    reason='Requires tensorflow backend')
+                    reason='Requires TensorFlow backend')
 def test_xception():
     model = applications.Xception(weights=None)
     assert model.output_shape == (None, 1000)
@@ -172,7 +172,7 @@ def test_xception():
 
 @keras_test
 @pytest.mark.skipif((K.backend() != 'tensorflow'),
-                    reason='Requires tensorflow backend')
+                    reason='Requires TensorFlow backend')
 def test_xception_notop():
     model = applications.Xception(weights=None, include_top=False)
     assert model.output_shape == (None, None, None, 2048)
@@ -180,7 +180,7 @@ def test_xception_notop():
 
 @keras_test
 @pytest.mark.skipif((K.backend() != 'tensorflow'),
-                    reason='Requires tensorflow backend')
+                    reason='Requires TensorFlow backend')
 def test_xception_pooling():
     model = applications.Xception(weights=None, include_top=False, pooling='avg')
     assert model.output_shape == (None, 2048)
@@ -188,7 +188,7 @@ def test_xception_pooling():
 
 @keras_test
 @pytest.mark.skipif((K.backend() != 'tensorflow'),
-                    reason='Requires tensorflow backend')
+                    reason='Requires TensorFlow backend')
 def test_xception_variable_input_channels():
     input_shape = (1, None, None) if K.image_data_format() == 'channels_first' else (None, None, 1)
     model = applications.Xception(weights=None, include_top=False, input_shape=input_shape)
@@ -232,6 +232,64 @@ def test_inceptionv3_variable_input_channels():
     input_shape = (4, None, None) if K.image_data_format() == 'channels_first' else (None, None, 4)
     model = applications.InceptionV3(weights=None, include_top=False, input_shape=input_shape)
     assert model.output_shape == (None, None, None, 2048)
+
+
+@keras_test
+@pytest.mark.skipif((K.backend() == 'cntk'),
+                    reason='InceptionResNetV2 is not supported on CNTK')
+def test_inceptionresnetv2():
+    model = applications.InceptionResNetV2(weights=None)
+    assert model.output_shape == (None, 1000)
+
+
+@keras_test
+@pytest.mark.skipif((K.backend() == 'cntk'),
+                    reason='InceptionResNetV2 is not supported on CNTK')
+def test_inceptionresnetv2_notop():
+    global_image_data_format = K.image_data_format()
+
+    K.set_image_data_format('channels_first')
+    model = applications.InceptionResNetV2(weights=None, include_top=False)
+    assert model.output_shape == (None, 1536, None, None)
+
+    K.set_image_data_format('channels_last')
+    model = applications.InceptionResNetV2(weights=None, include_top=False)
+    assert model.output_shape == (None, None, None, 1536)
+
+    K.set_image_data_format(global_image_data_format)
+
+
+@keras_test
+@pytest.mark.skipif((K.backend() == 'cntk'),
+                    reason='InceptionResNetV2 is not supported on CNTK')
+def test_inceptionresnetv2_pooling():
+    model = applications.InceptionResNetV2(weights=None, include_top=False, pooling='avg')
+    assert model.output_shape == (None, 1536)
+
+
+@keras_test
+@pytest.mark.skipif((K.backend() == 'cntk'),
+                    reason='InceptionResNetV2 is not supported on CNTK')
+def test_inceptionresnetv2_variable_input_channels():
+    global_image_data_format = K.image_data_format()
+
+    K.set_image_data_format('channels_first')
+    input_shape = (1, None, None)
+    model = applications.InceptionResNetV2(weights=None, include_top=False, input_shape=input_shape)
+    assert model.output_shape == (None, 1536, None, None)
+    input_shape = (4, None, None)
+    model = applications.InceptionResNetV2(weights=None, include_top=False, input_shape=input_shape)
+    assert model.output_shape == (None, 1536, None, None)
+
+    K.set_image_data_format('channels_last')
+    input_shape = (None, None, 1)
+    model = applications.InceptionResNetV2(weights=None, include_top=False, input_shape=input_shape)
+    assert model.output_shape == (None, None, None, 1536)
+    input_shape = (None, None, 4)
+    model = applications.InceptionResNetV2(weights=None, include_top=False, input_shape=input_shape)
+    assert model.output_shape == (None, None, None, 1536)
+
+    K.set_image_data_format(global_image_data_format)
 
 
 @keras_test
